@@ -56,7 +56,7 @@ const copy = {
     ru: {
         eyebrow: 'АККАУНТ И ПОДПИСКА',
         title: 'Управляйте этой подпиской',
-        guest: 'Войдите или зарегистрируйтесь, чтобы сохранить подписку в аккаунте, синхронизировать её с CheezyVPN и продлевать именно этот заказ.',
+        guest: 'Войдите или зарегистрируйтесь, чтобы сохранить подписку в аккаунте, синхронизировать её с CheezyVPN и продлевать именно этот заказ, а также управлять устройствами в подписке',
         login: 'Войти или зарегистрироваться',
         guide: 'Подробная инструкция',
         route: ['ссылка', 'аккаунт', 'профиль', 'подключено'],
@@ -74,7 +74,7 @@ const copy = {
         cancel: 'Отмена',
         profiles: 'Профили аккаунта',
         primary: 'Основной',
-        renew: 'Продлить',
+        renew: 'Личный кабинет и продление',
         days: 'дн.',
         devices: 'устройств',
         added: 'Подписка добавлена. Обновите профили в CheezyVPN.',
@@ -84,7 +84,7 @@ const copy = {
     en: {
         eyebrow: 'ACCOUNT & SUBSCRIPTION',
         title: 'Manage this subscription',
-        guest: 'Sign in or create an account to save this subscription, synchronize it with CheezyVPN, and renew this exact order.',
+        guest: 'Sign in or create an account to save this subscription, synchronize it with CheezyVPN, and renew this exact order, as well as manage devices on the subscription',
         login: 'Sign in or create account',
         guide: 'Detailed connection guide',
         route: ['link', 'account', 'profile', 'connected'],
@@ -102,7 +102,7 @@ const copy = {
         cancel: 'Cancel',
         profiles: 'Account profiles',
         primary: 'Primary',
-        renew: 'Renew',
+        renew: 'Account and renewal',
         days: 'days',
         devices: 'devices',
         added: 'Subscription added. Refresh profiles in CheezyVPN.',
@@ -242,6 +242,7 @@ export const AccountHubWidget = () => {
                                 component="a"
                                 href={state.loginUrl}
                                 leftSection={<IconLogin size={17} />}
+                                variant="white"
                             >
                                 {t.login}
                             </Button>
@@ -286,6 +287,7 @@ export const AccountHubWidget = () => {
                                     leftSection={busy ? <Loader color="dark" size="xs" /> : <IconRefresh size={17} />}
                                     loading={busy}
                                     onClick={() => void attach()}
+                                    variant="white"
                                 >
                                     {t.add}
                                 </Button>

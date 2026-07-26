@@ -9,6 +9,7 @@ export default {
     }),
     Button: Button.extend({
         defaultProps: {
+            autoContrast: true,
             radius: 'md',
             variant: 'filled'
         },
