@@ -61,6 +61,13 @@ const assetsPath = isDevelopment()
     ? path.join(__dirname, '..', '..', 'dev_frontend')
     : '/opt/app/frontend';
 
+morgan.token('safe-url', (request) => {
+    const pathOnly = (request.url || '/').split('?', 1)[0];
+    if (pathOnly.startsWith('/_account/')) return pathOnly;
+    if (/^\/[A-Za-z0-9_-]{6,64}\/?$/.test(pathOnly)) return '/:subscription';
+    return pathOnly;
+});
+
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         logger: WinstonModule.createLogger({
@@ -98,7 +105,7 @@ async function bootstrap(): Promise<void> {
 
     app.use(
         morgan(
-            ':remote-addr - ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
+            ':remote-addr - ":method :safe-url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
             {
                 skip: (req) => req?.url?.startsWith('/assets') ?? false,
             },

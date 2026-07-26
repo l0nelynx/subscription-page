@@ -68,6 +68,11 @@ export const configSchema = z
         MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS: booleanString(),
         INTERNAL_JWT_SECRET: z.string(),
         EGAMES_COOKIE: z.optional(z.string()),
+        CHEEZY_ACCOUNT_ENABLED: booleanString(),
+        CHEEZY_PORTAL_API_URL: z.optional(z.string().url()),
+        CHEEZY_PORTAL_URL: z.optional(z.string().url()),
+        CHEEZY_OAUTH_REDIRECT_URI: z.optional(z.string().url()),
+        CHEEZY_INSTRUCTION_URL: z.optional(z.string().url()),
     })
     .superRefine((data, ctx) => {
         if (
@@ -87,6 +92,21 @@ export const configSchema = z
                     message:
                         'MARZBAN_LEGACY_SECRET_KEY is required when MARZBAN_LEGACY_LINK_ENABLED is true',
                 });
+            }
+        }
+        if (data.CHEEZY_ACCOUNT_ENABLED) {
+            for (const key of [
+                'CHEEZY_PORTAL_API_URL',
+                'CHEEZY_PORTAL_URL',
+                'CHEEZY_OAUTH_REDIRECT_URI',
+            ] as const) {
+                if (!data[key]) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: `${key} is required when CHEEZY_ACCOUNT_ENABLED=true`,
+                        path: [key],
+                    });
+                }
             }
         }
     });
