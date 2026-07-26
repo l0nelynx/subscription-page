@@ -239,6 +239,7 @@ export const AccountHubWidget = () => {
                         <Text c="dimmed" lh={1.6}>{t.guest}</Text>
                         <Group>
                             <Button
+                                color="black"
                                 component="a"
                                 href={state.loginUrl}
                                 leftSection={<IconLogin size={17} />}
@@ -284,6 +285,7 @@ export const AccountHubWidget = () => {
                         ) : (
                             <Stack gap="xs">
                                 <Button
+                                    color="black"
                                     leftSection={busy ? <Loader color="dark" size="xs" /> : <IconRefresh size={17} />}
                                     loading={busy}
                                     onClick={() => void attach()}
