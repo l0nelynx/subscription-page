@@ -3,6 +3,7 @@ import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types
 
 import {
     AccordionBlockRenderer,
+    AccountHubWidget,
     CardsBlockRenderer,
     InstallationGuideConnector,
     MinimalBlockRenderer,
@@ -113,6 +114,8 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                     {SubscriptionInfoBlockRenderer && (
                         <SubscriptionInfoBlockRenderer isMobile={isMobile} />
                     )}
+
+                    <AccountHubWidget />
 
                     {atLeastOnePlatformApp && (
                         <InstallationGuideConnector

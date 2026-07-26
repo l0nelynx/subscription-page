@@ -6,10 +6,11 @@ import { getJWTConfig } from '@common/config/jwt/jwt.config';
 import { SubpageConfigService } from './subpage-config.service';
 import { RootController } from './root.controller';
 import { RootService } from './root.service';
+import { AccountHubController } from './account-hub.controller';
 
 @Module({
     imports: [JwtModule.registerAsync(getJWTConfig())],
-    controllers: [RootController],
+    controllers: [AccountHubController, RootController],
     providers: [RootService, SubpageConfigService],
 })
 export class RootModule {}

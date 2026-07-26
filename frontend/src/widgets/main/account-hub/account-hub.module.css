@@ -1,0 +1,43 @@
+.hub {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--mantine-color-cyan-5) 25%, transparent);
+    background: color-mix(in srgb, var(--mantine-color-dark-8) 88%, transparent);
+}
+
+.hub::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    content: '';
+    background: var(--mantine-color-cyan-5);
+}
+
+.route {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    color: var(--mantine-color-dimmed);
+}
+
+.route strong {
+    color: var(--mantine-color-cyan-4);
+}
+
+.profile {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.profile:first-child {
+    border-top: 0;
+}
