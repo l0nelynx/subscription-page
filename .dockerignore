@@ -1,0 +1,9 @@
+.git
+.github
+.vscode
+.env
+**/.env
+**/node_modules
+**/dist
+**/.cache
+*.log
