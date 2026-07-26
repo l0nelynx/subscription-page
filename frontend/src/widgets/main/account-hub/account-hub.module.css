@@ -1,8 +1,8 @@
 .hub {
     position: relative;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--mantine-color-cyan-5) 25%, transparent);
-    background: color-mix(in srgb, var(--mantine-color-dark-8) 88%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: oklch(0.18 0 0);
 }
 
 .hub::before {
@@ -12,7 +12,7 @@
     left: 0;
     width: 3px;
     content: '';
-    background: var(--mantine-color-cyan-5);
+    background: var(--mantine-color-brand-0);
 }
 
 .route {
@@ -26,7 +26,7 @@
 }
 
 .route strong {
-    color: var(--mantine-color-cyan-4);
+    color: var(--mantine-color-dark-0);
 }
 
 .profile {

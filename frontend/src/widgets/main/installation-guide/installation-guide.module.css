@@ -14,16 +14,16 @@
     height: 48px;
     min-width: 0;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-left: 3px solid rgba(255, 255, 255, 0.08);
+    background: oklch(0.18 0 0);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 3px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--mantine-radius-md);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .appButton:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: oklch(0.22 0 0);
     border-left-color: rgba(255, 255, 255, 0.25);
 }
 
@@ -33,16 +33,14 @@
 
 .appButtonActive,
 .appButtonActive:hover {
-    background: linear-gradient(90deg, rgba(34, 211, 238, 0.12) 0%, rgba(34, 211, 238, 0.04) 100%);
-    border-color: rgba(34, 211, 238, 0.2);
-    border-left-color: var(--mantine-color-cyan-5);
-    box-shadow:
-        inset 4px 0 12px -4px rgba(34, 211, 238, 0.3),
-        0 0 12px rgba(34, 211, 238, 0.1);
+    background: oklch(0.24 0 0);
+    border-color: rgba(255, 255, 255, 0.24);
+    border-left-color: var(--mantine-color-brand-0);
+    box-shadow: inset 3px 0 0 var(--mantine-color-brand-0);
 }
 
 .appButtonActive .appName {
-    color: var(--mantine-color-cyan-3);
+    color: var(--mantine-color-dark-0);
 }
 
 .appButtonActive .bgIcon,

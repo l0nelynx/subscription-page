@@ -212,7 +212,7 @@ export const AccountHubWidget = () => {
     }
 
     if (state === null) {
-        return <Card className={styles.hub} p="lg"><Loader color="cyan" size="sm" /></Card>
+        return <Card className={styles.hub} p="lg"><Loader color="gray" size="sm" /></Card>
     }
     if (!state.enabled) return null
 
@@ -220,7 +220,7 @@ export const AccountHubWidget = () => {
         <Card className={styles.hub} p={{ base: 'lg', sm: 'xl' }} radius="lg">
             <Stack gap="lg">
                 <div>
-                    <Text c="cyan.4" ff="monospace" fz="xs" fw={700} lts="0.14em">
+                    <Text c="dimmed" ff="monospace" fz="xs" fw={700} lts="0.14em">
                         {t.eyebrow}
                     </Text>
                     <Title mt={6} order={3}>{t.title}</Title>
@@ -264,7 +264,7 @@ export const AccountHubWidget = () => {
                     <Stack gap="lg">
                         <Group justify="space-between">
                             <Group gap="xs">
-                                <IconUserCircle color="var(--mantine-color-cyan-4)" size={20} />
+                                <IconUserCircle color="var(--mantine-color-dark-1)" size={20} />
                                 <Text fz="sm">{state.user?.email ?? 'Telegram'}</Text>
                             </Group>
                             <Button color="gray" onClick={() => void logout()} size="compact-sm" variant="subtle">
@@ -313,7 +313,7 @@ export const AccountHubWidget = () => {
                                         <div>
                                             <Group gap="xs">
                                                 <Text fw={600} size="sm">{item.label || item.tariff}</Text>
-                                                {item.is_primary && <Badge color="cyan" size="xs">{t.primary}</Badge>}
+                                                {item.is_primary && <Badge color="gray" size="xs">{t.primary}</Badge>}
                                             </Group>
                                             <Text c="dimmed" fz="xs" mt={3}>
                                                 {item.days_left} {t.days} · {item.devices_count} {t.devices}
@@ -321,7 +321,7 @@ export const AccountHubWidget = () => {
                                         </div>
                                         <Group gap="xs" wrap="nowrap">
                                             <Button
-                                                color="cyan"
+                                                color="gray"
                                                 component="a"
                                                 href={item.renew_url}
                                                 size="compact-xs"
@@ -330,7 +330,7 @@ export const AccountHubWidget = () => {
                                                 {t.renew}
                                             </Button>
                                             {item.rw_id === state.currentRwId && (
-                                                <IconExternalLink color="var(--mantine-color-cyan-4)" size={17} />
+                                                <IconExternalLink color="var(--mantine-color-dark-1)" size={17} />
                                             )}
                                         </Group>
                                     </div>

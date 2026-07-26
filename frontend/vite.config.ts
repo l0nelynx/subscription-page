@@ -2,7 +2,6 @@
 // import { visualizer } from 'rollup-plugin-visualizer'
 // import deadFile from 'vite-plugin-deadfile'
 import removeConsole from 'vite-plugin-remove-console'
-import webfontDownload from 'vite-plugin-webfont-dl'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -12,7 +11,6 @@ export default defineConfig({
     plugins: [
         react(),
         removeConsole(),
-        webfontDownload(undefined, {}),
         ViteEjsPlugin((viteConfig) => {
             if (process.env.NODE_ENV === 'production') {
                 return {

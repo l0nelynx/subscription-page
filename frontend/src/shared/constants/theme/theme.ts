@@ -6,8 +6,8 @@ export const theme = createTheme({
     components,
     cursorType: 'pointer',
     fontFamily:
-        'Montserrat, Vazirmatn, Apple Color Emoji, Noto Sans SC, Twemoji Country Flags, sans-serif',
-    fontFamilyMonospace: 'Fira Mono, monospace',
+        'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", Vazirmatn, sans-serif',
+    fontFamilyMonospace: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     breakpoints: {
         xs: '25em',
         sm: '30em',
@@ -20,23 +20,35 @@ export const theme = createTheme({
     },
     scale: 1,
     fontSmoothing: true,
-    focusRing: 'never',
+    focusRing: 'auto',
+    respectReducedMotion: true,
     white: '#ffffff',
     black: '#24292f',
     colors: {
         dark: [
-            '#c9d1d9',
-            '#b1bac4',
-            '#8b949e',
-            '#6e7681',
-            '#484f58',
-            '#30363d',
-            '#21262d',
-            '#161b22',
-            '#0d1117',
-            '#010409'
+            '#fafafa',
+            '#e5e5e5',
+            '#adadad',
+            '#737373',
+            '#525252',
+            '#3d3d3d',
+            '#2b2b2b',
+            '#202020',
+            '#171717',
+            '#0f0f0f'
         ],
-
+        brand: [
+            '#fafafa',
+            '#f5f5f5',
+            '#e5e5e5',
+            '#d4d4d4',
+            '#a3a3a3',
+            '#737373',
+            '#525252',
+            '#404040',
+            '#262626',
+            '#171717'
+        ],
         blue: [
             '#ddf4ff',
             '#b6e3ff',
@@ -86,13 +98,13 @@ export const theme = createTheme({
             '#471700'
         ]
     },
-    primaryShade: 8,
-    primaryColor: 'cyan',
+    primaryShade: { light: 8, dark: 0 },
+    primaryColor: 'brand',
     autoContrast: true,
     luminanceThreshold: 0.3,
     headings: {
-        fontFamily: 'Unbounded, Vazirmatn, Apple Color Emoji, Noto Sans SC, sans-serif',
-        fontWeight: '600'
+        fontFamily: 'inherit',
+        fontWeight: '700'
     },
     defaultRadius: 'md'
 })

@@ -61,8 +61,8 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
 
     const handleShowQr = (link: ParsedLink) => {
         const qrCode = renderSVG(link.fullLink, {
-            whiteColor: '#161B22',
-            blackColor: '#22d3ee'
+            whiteColor: '#171717',
+            blackColor: '#fafafa'
         })
 
         modals.open({
@@ -95,7 +95,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                         {t(baseTranslations.connectionKeysHeader)}
                     </Title>
                     {parsedLinks.length > 1 && (
-                        <Badge color="cyan" size="lg" variant="light">
+                        <Badge color="gray" size="lg" variant="light">
                             {parsedLinks.length}
                         </Badge>
                     )}
@@ -110,7 +110,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                                         <IconKey
                                             size={isMobile ? 16 : 18}
                                             style={{
-                                                color: 'var(--mantine-color-cyan-4)',
+                                                color: 'var(--mantine-color-dark-1)',
                                                 flexShrink: 0
                                             }}
                                         />
@@ -148,7 +148,7 @@ export const RawKeysWidget = ({ isMobile }: IProps) => {
                                         </CopyButton>
 
                                         <ActionIcon
-                                            color="cyan"
+                                            color="gray"
                                             onClick={() => {
                                                 vibrate('tap')
                                                 handleShowQr(link)

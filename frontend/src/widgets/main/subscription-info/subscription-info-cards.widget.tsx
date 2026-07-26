@@ -1,8 +1,8 @@
 import { IconArrowsUpDown, IconCalendar, IconCheck, IconUserScan, IconX } from '@tabler/icons-react'
-import { Box, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
+import { Box, Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
 
 import { useSubscription } from '@entities/subscription-info-store'
-import { formatDate } from '@shared/utils/config-parser'
+import { formatDate, getExpirationTextUtil } from '@shared/utils/config-parser'
 import { useTranslation } from '@shared/hooks'
 
 import classes from './subscription-info-cards.module.css'
@@ -80,7 +80,23 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
             : `${user.trafficUsed} / ${user.trafficLimit}`
 
     return (
-        <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
+        <Stack gap="xs">
+            <Card p={{ base: 'lg', sm: 'xl' }}>
+                <Group align="flex-end" gap="sm" justify="space-between">
+                    <div>
+                        <Text c="dimmed" fw={600} size="xs" tt="uppercase">
+                            {user.username}
+                        </Text>
+                        <Text fw={750} lh={1} mt={8} size="3.4rem">
+                            {user.daysLeft}
+                        </Text>
+                    </div>
+                    <Text c={user.daysLeft <= 3 ? 'yellow' : 'dimmed'} fw={600} mb={7} size="sm">
+                        {getExpirationTextUtil(user.expiresAt, currentLang, baseTranslations)}
+                    </Text>
+                </Group>
+            </Card>
+            <SimpleGrid cols={{ base: 1, xs: 1, sm: 2 }} spacing="xs" verticalSpacing="xs">
             <CardItem
                 color="blue"
                 icon={<IconUserScan size={18} />}
@@ -103,11 +119,12 @@ export const SubscriptionInfoCardsWidget = ({ isMobile: _ }: IProps) => {
             />
 
             <CardItem
-                color="cyan"
+                color="blue"
                 icon={<IconArrowsUpDown size={18} />}
                 label={t(baseTranslations.bandwidth)}
                 value={bandwidthValue}
             />
-        </SimpleGrid>
+            </SimpleGrid>
+        </Stack>
     )
 }

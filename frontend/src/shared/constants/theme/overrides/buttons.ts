@@ -9,8 +9,14 @@ export default {
     }),
     Button: Button.extend({
         defaultProps: {
-            radius: 'lg',
-            variant: 'outline'
+            radius: 'md',
+            variant: 'filled'
+        },
+        styles: {
+            root: {
+                fontWeight: 650,
+                border: '1px solid rgba(255, 255, 255, 0.14)'
+            }
         }
     })
 }

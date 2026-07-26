@@ -11,6 +11,7 @@ import badge from './badge'
 import table from './table'
 import card from './card'
 import menu from './menu'
+import surfaces from './surfaces'
 
 export default {
     ...card,
@@ -21,6 +22,7 @@ export default {
     ...inputs,
     ...loadingOverlay,
     ...menu,
+    ...surfaces,
     ...notification,
     ...ringProgress,
     ...table,
