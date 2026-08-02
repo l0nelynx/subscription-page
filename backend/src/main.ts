@@ -97,7 +97,7 @@ async function bootstrap(): Promise<void> {
         app.use(proxyCheckMiddleware);
     }
 
-    app.use('/assets', cookieParser());
+    app.use(cookieParser());
     app.use('/assets', checkAssetsCookieMiddleware);
 
     app.use(noRobotsMiddleware, getRealIp, headerFilterMiddleware);
@@ -125,7 +125,17 @@ async function bootstrap(): Promise<void> {
 
     const customSubPrefix = config.get('CUSTOM_SUB_PREFIX');
 
-    app.setGlobalPrefix(customSubPrefix ?? '', { exclude: [APP_CONFIG_ROUTE_WO_LEADING_PATH] });
+    app.setGlobalPrefix(customSubPrefix ?? '', {
+        exclude: [
+            APP_CONFIG_ROUTE_WO_LEADING_PATH,
+            '_account/state',
+            '_account/login',
+            '_account/callback',
+            '_account/attach',
+            '_account/transfer',
+            '_account/logout',
+        ],
+    });
 
     if (customSubPrefix) {
         logger.info('[CONFIG] CUSTOM_SUB_PREFIX: ' + customSubPrefix);

@@ -42,6 +42,7 @@ type ManagedSubscription = {
 
 type HubState = {
     enabled: boolean
+    loadError?: boolean
     authenticated?: boolean
     loginUrl?: string
     instructionUrl?: string | null
@@ -79,6 +80,8 @@ const copy = {
         devices: 'устройств',
         added: 'Подписка добавлена. Обновите профили в CheezyVPN.',
         failed: 'Не удалось выполнить действие. Обновите страницу или обратитесь в поддержку.',
+        unavailable: 'Панель аккаунта временно недоступна. Попробуйте загрузить её ещё раз.',
+        retry: 'Повторить',
         signOut: 'Выйти из аккаунта'
     },
     en: {
@@ -107,6 +110,8 @@ const copy = {
         devices: 'devices',
         added: 'Subscription added. Refresh profiles in CheezyVPN.',
         failed: 'The action failed. Refresh the page or contact support.',
+        unavailable: 'The account panel is temporarily unavailable. Try loading it again.',
+        retry: 'Retry',
         signOut: 'Sign out'
     }
 } as const
@@ -130,11 +135,14 @@ export const AccountHubWidget = () => {
 
     const reload = useCallback(async () => {
         const response = await fetch(`/_account/state?short_uuid=${encodeURIComponent(shortUuid)}`)
-        setState((await response.json()) as HubState)
+        if (!response.ok) throw new Error(`account_state_${response.status}`)
+        const nextState = (await response.json()) as HubState
+        if (typeof nextState.enabled !== 'boolean') throw new Error('invalid_account_state')
+        setState(nextState)
     }, [shortUuid])
 
     useEffect(() => {
-        void reload().catch(() => setState({ enabled: false }))
+        void reload().catch(() => setState({ enabled: true, loadError: true }))
     }, [reload])
 
     const attach = async () => {
@@ -215,6 +223,30 @@ export const AccountHubWidget = () => {
         return <Card className={styles.hub} p="lg"><Loader color="gray" size="sm" /></Card>
     }
     if (!state.enabled) return null
+    if (state.loadError) {
+        return (
+            <Card className={styles.hub} p={{ base: 'lg', sm: 'xl' }} radius="lg">
+                <Alert color="red" title={t.title}>
+                    <Stack gap="md">
+                        <Text>{t.unavailable}</Text>
+                        <Button
+                            color="gray"
+                            leftSection={<IconRefresh size={17} />}
+                            onClick={() => {
+                                setState(null)
+                                void reload().catch(() =>
+                                    setState({ enabled: true, loadError: true })
+                                )
+                            }}
+                            variant="white"
+                        >
+                            {t.retry}
+                        </Button>
+                    </Stack>
+                </Alert>
+            </Card>
+        )
+    }
 
     return (
         <Card className={styles.hub} p={{ base: 'lg', sm: 'xl' }} radius="lg">
