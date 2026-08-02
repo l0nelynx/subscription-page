@@ -13,10 +13,17 @@ import { SubscriptionService } from './subscription.service';
 })
 export class SubscriptionModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(ClientTypeMiddleware).exclude('/assets/*splat').forRoutes({
-            path: ':shortUuid/:clientType',
-
-            method: RequestMethod.GET,
-        });
+        consumer
+            .apply(ClientTypeMiddleware)
+            .exclude(
+                '/assets/*splat',
+                '_account/state',
+                '_account/login',
+                '_account/callback',
+            )
+            .forRoutes({
+                path: ':shortUuid/:clientType',
+                method: RequestMethod.GET,
+            });
     }
 }
