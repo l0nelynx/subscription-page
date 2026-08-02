@@ -120,7 +120,7 @@ export const AccountHubWidget = () => {
     const currentLang = useCurrentLang()
     const lang = currentLang === 'ru' ? 'ru' : 'en'
     const t = copy[lang]
-    const shortUuid = useMemo(currentShortUuid, [])
+    const shortUuid = useMemo(() => currentShortUuid(), [])
     const [state, setState] = useState<HubState | null>(null)
     const [busy, setBusy] = useState(false)
     const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null)
