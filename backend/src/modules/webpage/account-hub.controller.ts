@@ -1,5 +1,5 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { Request, Response } from 'express';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import {
     Body,
@@ -24,6 +24,11 @@ const CSRF_COOKIE = 'cheezy_account_csrf';
 const SHORT_UUID_RE = /^[A-Za-z0-9_-]{6,64}$/;
 
 type ContextResponse = { context: string; rw_id: number; expires_in: number };
+type InitialAttachResponse = {
+    status: 'attached' | 'already_attached' | 'skipped_nonempty';
+    subscription_id?: number | null;
+    is_primary?: boolean;
+};
 type ManagedSubscription = {
     id: number;
     rw_id: number;
@@ -99,10 +104,17 @@ export class AccountHubController {
         return { Authorization: `Bearer ${session}` };
     }
 
-    private requireSessionAndCsrf(
-        request: Request,
-        csrfHeader: string | undefined,
-    ): string {
+    private errorCode(error: unknown): string {
+        if (!(error instanceof HttpException)) return 'attach_failed';
+        const response = error.getResponse();
+        if (typeof response === 'object' && response !== null && 'code' in response) {
+            const code = (response as { code?: unknown }).code;
+            if (typeof code === 'string') return code;
+        }
+        return 'attach_failed';
+    }
+
+    private requireSessionAndCsrf(request: Request, csrfHeader: string | undefined): string {
         const session = request.cookies?.[SESSION_COOKIE] as string | undefined;
         const csrfCookie = request.cookies?.[CSRF_COOKIE] as string | undefined;
         const validCsrf =
@@ -145,10 +157,9 @@ export class AccountHubController {
                     '/web/oauth/userinfo',
                     { headers: this.bearer(session) },
                 ),
-                this.api<{ subscriptions: ManagedSubscription[] }>(
-                    '/web/oauth/subscriptions',
-                    { headers: this.bearer(session) },
-                ),
+                this.api<{ subscriptions: ManagedSubscription[] }>('/web/oauth/subscriptions', {
+                    headers: this.bearer(session),
+                }),
             ]);
             let csrfToken = request.cookies?.[CSRF_COOKIE] as string | undefined;
             if (!csrfToken) {
@@ -180,13 +191,9 @@ export class AccountHubController {
     }
 
     @Get('login')
-    async login(
-        @Query('short_uuid') shortUuidRaw: string | undefined,
-        @Res() response: Response,
-    ) {
+    async login(@Query('short_uuid') shortUuidRaw: string | undefined, @Res() response: Response) {
         if (!this.enabled()) return response.status(404).end();
         const shortUuid = this.validShortUuid(shortUuidRaw);
-        const current = await this.context(shortUuid);
         const state = randomBytes(24).toString('base64url');
         const verifier = randomBytes(48).toString('base64url');
         const challenge = createHash('sha256').update(verifier).digest('base64url');
@@ -208,11 +215,6 @@ export class AccountHubController {
         authorizeUrl.searchParams.set('code_challenge', challenge);
         authorizeUrl.searchParams.set('code_challenge_method', 'S256');
         authorizeUrl.searchParams.set('state', state);
-        // Fragments never reach portal/reverse-proxy access logs. The portal
-        // keeps this value client-side through login/register return_to.
-        authorizeUrl.hash = new URLSearchParams({
-            subscription_context: current.context,
-        }).toString();
         return response.redirect(authorizeUrl.toString());
     }
 
@@ -248,17 +250,16 @@ export class AccountHubController {
             return response.redirect(`/${shortUuid}?account_error=invalid_state`);
         }
 
+        let token: { session_token: string; expires_in: number };
         try {
-            const token = await this.api<{ session_token: string; expires_in: number }>(
+            token = await this.api<{ session_token: string; expires_in: number }>(
                 '/web/oauth/token',
                 {
                     method: 'POST',
                     body: JSON.stringify({
                         grant_type: 'authorization_code',
                         client_id: 'subscription-page',
-                        redirect_uri: this.config.getOrThrow(
-                            'CHEEZY_OAUTH_REDIRECT_URI',
-                        ),
+                        redirect_uri: this.config.getOrThrow('CHEEZY_OAUTH_REDIRECT_URI'),
                         code,
                         code_verifier: verifier,
                     }),
@@ -269,16 +270,34 @@ export class AccountHubController {
                 token.session_token,
                 this.cookieOptions(token.expires_in * 1000),
             );
-            response.clearCookie(STATE_COOKIE, { path: '/' });
-            response.clearCookie(VERIFIER_COOKIE, { path: '/' });
-            response.clearCookie(SHORT_UUID_COOKIE, { path: '/' });
-            return response.redirect(`/${shortUuid}?account_login=success`);
         } catch {
             response.clearCookie(STATE_COOKIE, { path: '/' });
             response.clearCookie(VERIFIER_COOKIE, { path: '/' });
             response.clearCookie(SHORT_UUID_COOKIE, { path: '/' });
             return response.redirect(`/${shortUuid}?account_error=exchange_failed`);
         }
+
+        const redirect = new URL(`/${shortUuid}`, 'http://subscription-page.local');
+        redirect.searchParams.set('account_login', 'success');
+        try {
+            const current = await this.context(shortUuid);
+            const attached = await this.api<InitialAttachResponse>(
+                '/web/oauth/subscriptions/attach-initial',
+                {
+                    method: 'POST',
+                    headers: this.bearer(token.session_token),
+                    body: JSON.stringify({ context: current.context }),
+                },
+            );
+            redirect.searchParams.set('account_attach', attached.status);
+        } catch (error) {
+            redirect.searchParams.set('account_error', this.errorCode(error));
+        } finally {
+            response.clearCookie(STATE_COOKIE, { path: '/' });
+            response.clearCookie(VERIFIER_COOKIE, { path: '/' });
+            response.clearCookie(SHORT_UUID_COOKIE, { path: '/' });
+        }
+        return response.redirect(`${redirect.pathname}${redirect.search}`);
     }
 
     @Post('attach')

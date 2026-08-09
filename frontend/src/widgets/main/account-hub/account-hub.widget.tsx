@@ -79,6 +79,12 @@ const copy = {
         days: 'дн.',
         devices: 'устройств',
         added: 'Подписка добавлена. Обновите профили в CheezyVPN.',
+        autoAttached: 'Подписка автоматически привязана к вашему аккаунту.',
+        alreadyAttached: 'Эта подписка уже была привязана к вашему аккаунту.',
+        attachConflict:
+            'Подписка уже привязана к другому аккаунту. Войдите в него или обратитесь в поддержку.',
+        attachFailed:
+            'Вход выполнен, но автоматическая привязка не удалась. Нажмите «Добавить отдельным профилем», чтобы повторить.',
         failed: 'Не удалось выполнить действие. Обновите страницу или обратитесь в поддержку.',
         unavailable: 'Панель аккаунта временно недоступна. Попробуйте загрузить её ещё раз.',
         retry: 'Повторить',
@@ -109,6 +115,12 @@ const copy = {
         days: 'days',
         devices: 'devices',
         added: 'Subscription added. Refresh profiles in CheezyVPN.',
+        autoAttached: 'The subscription was linked to your account automatically.',
+        alreadyAttached: 'This subscription was already linked to your account.',
+        attachConflict:
+            'This subscription belongs to another account. Sign in to that account or contact support.',
+        attachFailed:
+            'You are signed in, but automatic linking failed. Use “Add as a separate profile” to retry.',
         failed: 'The action failed. Refresh the page or contact support.',
         unavailable: 'The account panel is temporarily unavailable. Try loading it again.',
         retry: 'Retry',
@@ -128,7 +140,20 @@ export const AccountHubWidget = () => {
     const shortUuid = useMemo(() => currentShortUuid(), [])
     const [state, setState] = useState<HubState | null>(null)
     const [busy, setBusy] = useState(false)
-    const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null)
+    const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(() => {
+        const params = new URLSearchParams(window.location.search)
+        const attached = params.get('account_attach')
+        const error = params.get('account_error')
+        if (attached === 'attached') return { ok: true, text: t.autoAttached }
+        if (attached === 'already_attached') return { ok: true, text: t.alreadyAttached }
+        if (error === 'subscription_already_linked') {
+            return { ok: false, text: t.attachConflict }
+        }
+        if (error && error !== 'invalid_state' && error !== 'exchange_failed') {
+            return { ok: false, text: t.attachFailed }
+        }
+        return null
+    })
     const [transferOpen, setTransferOpen] = useState(false)
     const [targetId, setTargetId] = useState<string | null>(null)
     const [transferConfirmed, setTransferConfirmed] = useState(false)
@@ -144,6 +169,23 @@ export const AccountHubWidget = () => {
     useEffect(() => {
         void reload().catch(() => setState({ enabled: true, loadError: true }))
     }, [reload])
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const attached = params.get('account_attach')
+        const error = params.get('account_error')
+        if (attached || error || params.has('account_login')) {
+            params.delete('account_attach')
+            params.delete('account_error')
+            params.delete('account_login')
+            const query = params.toString()
+            window.history.replaceState(
+                null,
+                '',
+                `${window.location.pathname}${query ? `?${query}` : ''}`
+            )
+        }
+    }, [])
 
     const attach = async () => {
         if (!state?.csrfToken) return
@@ -220,7 +262,11 @@ export const AccountHubWidget = () => {
     }
 
     if (state === null) {
-        return <Card className={styles.hub} p="lg"><Loader color="gray" size="sm" /></Card>
+        return (
+            <Card className={styles.hub} p="lg">
+                <Loader color="gray" size="sm" />
+            </Card>
+        )
     }
     if (!state.enabled) return null
     if (state.loadError) {
@@ -255,7 +301,9 @@ export const AccountHubWidget = () => {
                     <Text c="dimmed" ff="monospace" fz="xs" fw={700} lts="0.14em">
                         {t.eyebrow}
                     </Text>
-                    <Title mt={6} order={3}>{t.title}</Title>
+                    <Title mt={6} order={3}>
+                        {t.title}
+                    </Title>
                     <div className={styles.route} style={{ marginTop: '0.8rem' }}>
                         {t.route.map((item, index) => (
                             <Group gap="xs" key={item} wrap="nowrap">
@@ -268,7 +316,9 @@ export const AccountHubWidget = () => {
 
                 {!state.authenticated ? (
                     <Stack gap="md">
-                        <Text c="dimmed" lh={1.6}>{t.guest}</Text>
+                        <Text c="dimmed" lh={1.6}>
+                            {t.guest}
+                        </Text>
                         <Group>
                             <Button
                                 color="black"
@@ -301,31 +351,49 @@ export const AccountHubWidget = () => {
                                 <IconUserCircle color="var(--mantine-color-dark-1)" size={20} />
                                 <Text fz="sm">{state.user?.email ?? 'Telegram'}</Text>
                             </Group>
-                            <Button color="gray" onClick={() => void logout()} size="compact-sm" variant="subtle">
+                            <Button
+                                color="gray"
+                                onClick={() => void logout()}
+                                size="compact-sm"
+                                variant="subtle"
+                            >
                                 {t.signOut}
                             </Button>
                         </Group>
 
                         {notice && (
-                            <Alert color={notice.ok ? 'green' : 'red'} icon={notice.ok ? <IconCheck /> : undefined}>
+                            <Alert
+                                color={notice.ok ? 'green' : 'red'}
+                                icon={notice.ok ? <IconCheck /> : undefined}
+                            >
                                 {notice.text}
                             </Alert>
                         )}
 
                         {state.currentAttached ? (
-                            <Alert color="green" icon={<IconCheck size={18} />}>{t.linked}</Alert>
+                            <Alert color="green" icon={<IconCheck size={18} />}>
+                                {t.linked}
+                            </Alert>
                         ) : (
                             <Stack gap="xs">
                                 <Button
                                     color="black"
-                                    leftSection={busy ? <Loader color="dark" size="xs" /> : <IconRefresh size={17} />}
+                                    leftSection={
+                                        busy ? (
+                                            <Loader color="dark" size="xs" />
+                                        ) : (
+                                            <IconRefresh size={17} />
+                                        )
+                                    }
                                     loading={busy}
                                     onClick={() => void attach()}
                                     variant="white"
                                 >
                                     {t.add}
                                 </Button>
-                                <Text c="dimmed" fz="xs">{t.addHint}</Text>
+                                <Text c="dimmed" fz="xs">
+                                    {t.addHint}
+                                </Text>
                                 <Button
                                     color="gray"
                                     disabled={transferTargets.length === 0}
@@ -334,25 +402,38 @@ export const AccountHubWidget = () => {
                                 >
                                     {t.transfer}
                                 </Button>
-                                <Text c="dimmed" fz="xs">{t.transferHint}</Text>
+                                <Text c="dimmed" fz="xs">
+                                    {t.transferHint}
+                                </Text>
                                 {transferTargets.length === 0 && (
-                                    <Text c="dimmed" fz="xs">{t.transferUnavailable}</Text>
+                                    <Text c="dimmed" fz="xs">
+                                        {t.transferUnavailable}
+                                    </Text>
                                 )}
                             </Stack>
                         )}
 
                         {!!state.subscriptions?.length && (
                             <div>
-                                <Text fw={600} mb="xs" size="sm">{t.profiles}</Text>
+                                <Text fw={600} mb="xs" size="sm">
+                                    {t.profiles}
+                                </Text>
                                 {state.subscriptions.map((item) => (
                                     <div className={styles.profile} key={item.id}>
                                         <div>
                                             <Group gap="xs">
-                                                <Text fw={600} size="sm">{item.label || item.tariff}</Text>
-                                                {item.is_primary && <Badge color="gray" size="xs">{t.primary}</Badge>}
+                                                <Text fw={600} size="sm">
+                                                    {item.label || item.tariff}
+                                                </Text>
+                                                {item.is_primary && (
+                                                    <Badge color="gray" size="xs">
+                                                        {t.primary}
+                                                    </Badge>
+                                                )}
                                             </Group>
                                             <Text c="dimmed" fz="xs" mt={3}>
-                                                {item.days_left} {t.days} · {item.devices_count} {t.devices}
+                                                {item.days_left} {t.days} · {item.devices_count}{' '}
+                                                {t.devices}
                                             </Text>
                                         </div>
                                         <Group gap="xs" wrap="nowrap">
@@ -366,7 +447,10 @@ export const AccountHubWidget = () => {
                                                 {t.renew}
                                             </Button>
                                             {item.rw_id === state.currentRwId && (
-                                                <IconExternalLink color="var(--mantine-color-dark-1)" size={17} />
+                                                <IconExternalLink
+                                                    color="var(--mantine-color-dark-1)"
+                                                    size={17}
+                                                />
                                             )}
                                         </Group>
                                     </div>
@@ -383,7 +467,9 @@ export const AccountHubWidget = () => {
                 title={t.transferTitle}
             >
                 <Stack gap="md">
-                    <Text c="dimmed" fz="sm">{t.transferHint}</Text>
+                    <Text c="dimmed" fz="sm">
+                        {t.transferHint}
+                    </Text>
                     <Select
                         data={transferOptions}
                         label={t.transferTarget}
@@ -396,7 +482,12 @@ export const AccountHubWidget = () => {
                         onChange={(event) => setTransferConfirmed(event.currentTarget.checked)}
                     />
                     <Group justify="flex-end">
-                        <Button color="gray" disabled={busy} onClick={() => setTransferOpen(false)} variant="subtle">
+                        <Button
+                            color="gray"
+                            disabled={busy}
+                            onClick={() => setTransferOpen(false)}
+                            variant="subtle"
+                        >
                             {t.cancel}
                         </Button>
                         <Button
