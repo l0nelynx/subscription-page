@@ -1,4 +1,4 @@
-FROM node:24.18-trixie-slim AS frontend-build
+FROM node:24.22-trixie-slim AS frontend-build
 WORKDIR /opt/app
 
 COPY frontend/package*.json ./
@@ -11,7 +11,7 @@ COPY frontend/ .
 RUN npm run start:build && test -f dist/index.html
 
 
-FROM node:24.18-trixie-slim AS backend-build
+FROM node:24.22-trixie-slim AS backend-build
 WORKDIR /opt/app
 
 COPY backend/package*.json ./
@@ -25,7 +25,7 @@ COPY backend/ .
 RUN npm run build \
     && npm run trace
 
-FROM node:24.18-trixie-slim
+FROM node:24.22-trixie-slim
 WORKDIR /opt/app
 
 LABEL org.opencontainers.image.title="Remnawave Subscription Page"
